@@ -107,8 +107,7 @@ Created automatically next to the executable on first login/process — no manua
     "RepoName": "Project.Backend",
     "LocalRepoPath": "D:\\Repositories\\Project.Backend",
     "OutputDir": "",
-    "Username": "",
-    "Password": ""
+    "Username": ""
   }
 }
 ```
@@ -119,9 +118,9 @@ Created automatically next to the executable on first login/process — no manua
 | `RepoName` | Auto-detected from the first PR URL when processing. |
 | `LocalRepoPath` | Local path of the target repo clone (used for `git log`). Set via the **Browse...** button. |
 | `OutputDir` | Folder for generated Excel files. Empty = `output/` in the project root. Set via the **Browse...** button. |
-| `Username` / `Password` | TFS credentials, filled via the **Login...** window. Empty = Windows default credentials (NTLM). |
+| `Username` | TFS username, filled via the **Login...** window. Empty = Windows default credentials (NTLM). |
 
-> **Note:** The file contains credentials and is **intentionally gitignored** (`*.json`) — never commit it.
+> **Note:** The **password is not stored in this file** — it lives in the **Windows Credential Manager** (DPAPI-encrypted, per user), the same mechanism used by git-credential-manager. To remove it, delete the `TfsCherryPickHelper` entry in Windows Credential Manager (Control Panel → Credential Manager → Windows Credentials).
 
 ## Troubleshooting
 
@@ -139,5 +138,6 @@ Created automatically next to the executable on first login/process — no manua
 ## Security
 
 - No credentials are hardcoded in the source code.
-- `appsettings.json` is created automatically next to the executable and contains credentials — it is **intentionally gitignored** (`*.json`), never commit it.
-- Generated Excel files (`output/`) are also gitignored.
+- The **password is never written to disk as plaintext** — it is stored in the **Windows Credential Manager** (DPAPI-encrypted, per user). `appsettings.json` only holds non-sensitive settings (URLs, paths, username) and is created automatically next to the executable.
+- A legacy plaintext password found in `appsettings.json` is migrated to the Credential Manager automatically and removed from the file on the next start.
+- Generated Excel files (`output/`) are gitignored.

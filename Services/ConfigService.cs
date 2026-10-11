@@ -19,6 +19,9 @@ public class TfsSettings
 
 /// <summary>
 /// Reads and writes TfsSettings from/to appsettings.json next to the executable.
+/// The password is NOT stored in the file - it lives in the Windows Credential
+/// Manager (DPAPI-encrypted, per user). A legacy plaintext password found in
+/// the file is migrated to the Credential Manager and removed from the file.
 /// </summary>
 public static class ConfigService
 {
@@ -29,25 +32,51 @@ public static class ConfigService
     {
         var settings = new TfsSettings();
 
-        if (!File.Exists(ConfigPath))
-            return settings;
-
-        try
+        if (File.Exists(ConfigPath))
         {
-            var json = File.ReadAllText(ConfigPath);
-            var node = JsonNode.Parse(json);
-            var tfs = node?["TfsSettings"];
+            try
+            {
+                var json = File.ReadAllText(ConfigPath);
+                var node = JsonNode.Parse(json);
+                var tfs = node?["TfsSettings"];
 
-            settings.BaseUrl = tfs?["BaseUrl"]?.GetValue<string>() ?? string.Empty;
-            settings.RepoName = tfs?["RepoName"]?.GetValue<string>() ?? string.Empty;
-            settings.LocalRepoPath = tfs?["LocalRepoPath"]?.GetValue<string>() ?? string.Empty;
-            settings.OutputDir = tfs?["OutputDir"]?.GetValue<string>() ?? string.Empty;
-            settings.Username = tfs?["Username"]?.GetValue<string>() ?? string.Empty;
-            settings.Password = tfs?["Password"]?.GetValue<string>() ?? string.Empty;
+                settings.BaseUrl = tfs?["BaseUrl"]?.GetValue<string>() ?? string.Empty;
+                settings.RepoName = tfs?["RepoName"]?.GetValue<string>() ?? string.Empty;
+                settings.LocalRepoPath = tfs?["LocalRepoPath"]?.GetValue<string>() ?? string.Empty;
+                settings.OutputDir = tfs?["OutputDir"]?.GetValue<string>() ?? string.Empty;
+                settings.Username = tfs?["Username"]?.GetValue<string>() ?? string.Empty;
+            }
+            catch
+            {
+                // Corrupt or unreadable config: return defaults.
+            }
         }
-        catch
+
+        settings.Password = CredentialManagerService.ReadPassword() ?? string.Empty;
+
+        // One-time migration: move a legacy plaintext password out of the file.
+        if (File.Exists(ConfigPath))
         {
-            // Corrupt or unreadable config: return defaults.
+            try
+            {
+                var node = JsonNode.Parse(File.ReadAllText(ConfigPath));
+                var legacy = node?["TfsSettings"]?["Password"]?.GetValue<string>();
+                if (!string.IsNullOrEmpty(legacy))
+                {
+                    if (string.IsNullOrEmpty(settings.Password))
+                    {
+                        CredentialManagerService.WritePassword(legacy);
+                        settings.Password = legacy;
+                    }
+
+                    node!["TfsSettings"]!["Password"] = null;
+                    File.WriteAllText(ConfigPath, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+                }
+            }
+            catch
+            {
+                // Migration is best-effort; never block startup.
+            }
         }
 
         return settings;
@@ -63,11 +92,16 @@ public static class ConfigService
                 ["RepoName"] = settings.RepoName,
                 ["LocalRepoPath"] = settings.LocalRepoPath,
                 ["OutputDir"] = settings.OutputDir,
-                ["Username"] = settings.Username,
-                ["Password"] = settings.Password
+                ["Username"] = settings.Username
             }
         };
 
         File.WriteAllText(ConfigPath, node.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+
+        // The password is stored separately in the Windows Credential Manager.
+        if (string.IsNullOrEmpty(settings.Password))
+            CredentialManagerService.DeletePassword();
+        else
+            CredentialManagerService.WritePassword(settings.Password);
     }
 }

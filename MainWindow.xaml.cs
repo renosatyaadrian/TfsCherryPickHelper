@@ -311,6 +311,15 @@ public partial class MainWindow : Window
             .Distinct()
             .ToList();
 
+        // Apply the detected connection BEFORE the pre-flight connection test -
+        // _settings may still hold an empty BaseUrl when appsettings.json is fresh.
+        var connection = DetectConnection();
+        if (connection is not null)
+        {
+            _settings.BaseUrl = connection.Value.BaseUrl;
+            _settings.RepoName = connection.Value.RepoName;
+        }
+
         ProcessButton.IsEnabled = false;
         StatusText.Text = "Checking connection...";
 

@@ -50,6 +50,11 @@ public class TfsApiService
     /// </summary>
     public async Task<(bool Success, string Message)> TestConnectionAsync(Action<string>? log = null)
     {
+        if (string.IsNullOrWhiteSpace(_settings.BaseUrl))
+        {
+            return (false, "Base URL is empty - paste a full PR URL into 'PR Links / IDs' first (the Base URL is detected from it).");
+        }
+
         var baseUrl = _settings.BaseUrl.TrimEnd('/');
         var url = $"{baseUrl}/_apis/git/repositories/{Uri.EscapeDataString(_settings.RepoName)}?api-version=5.0";
 
@@ -99,6 +104,12 @@ public class TfsApiService
     /// </summary>
     public async Task<CherryPickItem?> GetPullRequestMergeCommitAsync(string prId, Action<string>? log = null)
     {
+        if (string.IsNullOrWhiteSpace(_settings.BaseUrl))
+        {
+            log?.Invoke($"[PR {prId}] ERROR - Base URL is empty. Paste a full PR URL into 'PR Links / IDs' first.");
+            return null;
+        }
+
         var baseUrl = _settings.BaseUrl.TrimEnd('/');
         var url = $"{baseUrl}/_apis/git/repositories/{Uri.EscapeDataString(_settings.RepoName)}/pullrequests/{prId}?api-version=5.0";
 
