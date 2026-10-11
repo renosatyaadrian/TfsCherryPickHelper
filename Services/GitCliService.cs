@@ -20,11 +20,21 @@ public class GitCliService
             return null;
         }
 
-        var output = await RunGitAsync($"log -1 --format=\"%H|%ci|%s\" {item.CommitHash}", log);
+        var logArgs = $"log -1 --format=\"%H|%ci|%s\" {item.CommitHash}";
+        var output = await RunGitAsync(logArgs, log);
         if (string.IsNullOrWhiteSpace(output))
         {
-            log?.Invoke($"[PR {item.PrId}] git log returned no output for commit {item.CommitHash}.");
-            return null;
+            // The commit is likely not in the local clone yet ("bad object").
+            // Fetch it from the remote, then retry the lookup once.
+            log?.Invoke($"[PR {item.PrId}] Commit {item.CommitHash} not found locally - fetching from remote...");
+            if (await TryFetchCommitAsync(item.CommitHash, log))
+                output = await RunGitAsync(logArgs, log);
+
+            if (string.IsNullOrWhiteSpace(output))
+            {
+                log?.Invoke($"[PR {item.PrId}] git log returned no output for commit {item.CommitHash} even after fetch.");
+                return null;
+            }
         }
 
         var line = output.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).FirstOrDefault();
@@ -44,6 +54,42 @@ public class GitCliService
         item.Message = parts[2];
 
         return item;
+    }
+
+    /// <summary>
+    /// Fetches all refs from all remotes. Call once before processing so
+    /// recently merged commits are available to `git log`.
+    /// </summary>
+    public async Task<bool> FetchAllAsync(Action<string>? log = null)
+    {
+        log?.Invoke("Running 'git fetch --all' to sync the local clone (this may take a while)...");
+        var output = await RunGitAsync("fetch --all", log);
+        if (string.IsNullOrWhiteSpace(output))
+        {
+            log?.Invoke("WARNING - git fetch --all failed. Commits may be missing from the results.");
+            return false;
+        }
+
+        log?.Invoke("Fetch completed.");
+        return true;
+    }
+
+    /// <summary>
+    /// Fetches a missing commit from the remote. Tries a targeted fetch of the
+    /// commit SHA first (fast), falling back to a full fetch of all branches.
+    /// </summary>
+    private async Task<bool> TryFetchCommitAsync(string commitHash, Action<string>? log)
+    {
+        // Fast path: fetch just the commit. Works when the server allows
+        // fetching arbitrary SHAs (uploadpack.allowReachableSHA1InWant).
+        var targeted = await RunGitAsync($"fetch origin {commitHash}", log);
+        if (!string.IsNullOrWhiteSpace(targeted))
+            return true;
+
+        // Fallback: fetch all refs from all remotes (slower but always works).
+        log?.Invoke("Targeted fetch failed - running 'git fetch --all' (this may take a while)...");
+        var full = await RunGitAsync("fetch --all", log);
+        return !string.IsNullOrWhiteSpace(full);
     }
 
     /// <summary>

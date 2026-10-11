@@ -31,7 +31,7 @@ public partial class MainWindow : Window
         Log("  1. Paste PR URLs into 'PR Links / IDs' (Base URL & repo are detected automatically).");
         Log("  2. Click 'Browse...' and select your local clone of the repository.");
         Log("  3. Click 'Login...' if not logged in, then 'Test Connection'.");
-        Log("  4. Enter a CR Name and click 'Proses & Generate Excel'.");
+        Log("  4. Enter a CR Name and click 'Process & Generate Excel'.");
     }
 
     /// <summary>
@@ -141,6 +141,12 @@ public partial class MainWindow : Window
             LogBox.AppendText($"{DateTime.Now:HH:mm:ss}  {message}{Environment.NewLine}");
             LogBox.ScrollToEnd();
         });
+    }
+
+    private void ClearLogButton_Click(object sender, RoutedEventArgs e)
+    {
+        LogBox.Clear();
+        StatusText.Text = "Log cleared.";
     }
 
     private void BrowseRepoButton_Click(object sender, RoutedEventArgs e)
@@ -354,10 +360,18 @@ public partial class MainWindow : Window
         var tfsService = new TfsApiService(settings);
         var gitService = new GitCliService();
 
-        var items = new List<CherryPickItem>();
+        // Sync the local clone first so recently merged commits are available.
+        await gitService.FetchAllAsync(Log);
 
-        foreach (var prId in prIds)
+        var items = new List<CherryPickItem>();
+        var total = prIds.Count;
+
+        for (var index = 0; index < total; index++)
         {
+            var prId = prIds[index];
+            var progress = $"Processing {index + 1}/{total} - PR {prId}...";
+            StatusText.Text = progress;
+            Log(progress);
             try
             {
                 var item = await tfsService.GetPullRequestMergeCommitAsync(prId, Log);
@@ -390,9 +404,10 @@ public partial class MainWindow : Window
             return;
         }
 
+        StatusText.Text = "Generating Excel...";
         var outputPath = ExcelExporter.Export(items, crName, settings.OutputDir);
         Log($"Excel generated: {outputPath}");
         Log($"Total items: {items.Count} (sorted oldest merge first).");
-        StatusText.Text = $"Done - {Path.GetFileName(outputPath)}";
+        StatusText.Text = $"Done - {items.Count}/{total} PR(s) - {Path.GetFileName(outputPath)}";
     }
 }

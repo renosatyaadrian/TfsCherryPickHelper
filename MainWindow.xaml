@@ -266,7 +266,7 @@
 
                 <!-- Process button -->
                 <Button Grid.Row="2" x:Name="ProcessButton" Style="{StaticResource PrimaryButton}"
-                        Content="Proses &amp; Generate Excel" HorizontalAlignment="Right" Margin="0,0,0,10"
+                        Content="Process &amp; Generate Excel" HorizontalAlignment="Right" Margin="0,0,0,10"
                         Click="ProcessButton_Click" />
 
                 <!-- Log -->
@@ -275,7 +275,16 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <TextBlock Grid.Row="0" Style="{StaticResource FieldLabel}" Text="Log / Status" />
+                    <Grid Grid.Row="0" Margin="0,0,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Style="{StaticResource FieldLabel}" Text="Log / Status" />
+                        <Button Grid.Column="1" Style="{StaticResource SecondaryButton}"
+                                Content="Clear Log" x:Name="ClearLogButton"
+                                Click="ClearLogButton_Click" Padding="10,3" FontSize="11" />
+                    </Grid>
                     <Border Grid.Row="1" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="6" Background="#FAFAFA">
                         <TextBox x:Name="LogBox" IsReadOnly="True" AcceptsReturn="True" TextWrapping="NoWrap"
                                  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"

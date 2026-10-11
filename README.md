@@ -12,7 +12,7 @@ A WPF (.NET) desktop application to automate fetching Pull Request (PR) details 
 - Output file name: `CherryPickList_{CRName}_{ddMMyy_HHmmss}.xlsx` (spaces in the CR Name are replaced with `_`), saved to the `output/` folder in the project root (or a custom folder chosen in Settings).
 - Base URL and repository name are **auto-detected from the first PR URL** — no manual configuration needed.
 - Live validation: the Process button enables automatically once all required inputs are set, with the missing item shown in the status bar.
-- Login is **on-demand**: the Login window appears only when needed (Test Connection / Proses without credentials), with automatic connection re-test after saving.
+- Login is **on-demand**: the Login window appears only when needed (Test Connection / Process without credentials), with automatic connection re-test after saving.
 - Account status in the header (top-right) with a green indicator when logged in; connection status indicator next to the Test Connection button.
 
 ## Prerequisites
@@ -78,13 +78,14 @@ Click **Browse...** next to **Local Repository Path** and select your local clon
 
 - Click **Login...** (top-right) and enter your TFS **Username** and **Password / PAT**, then click **Save & Continue**. The account chip in the header turns green.
 - Click **Test Connection** — the status chip next to it turns green (**Connected**) on success.
-- If you skip this, the login window appears automatically when you click **Proses & Generate Excel**, and the connection is re-tested automatically after saving.
+- If you skip this, the login window appears automatically when you click **Process & Generate Excel**, and the connection is re-tested automatically after saving.
 
 ### Step 7 — Process & generate Excel
 
 1. Enter the **CR Name**, e.g. `EventH23`.
-2. Click **Proses & Generate Excel** (the button enables automatically once CR Name, PR Links, and Local Repository Path are all set — in any order).
-3. Watch the progress in the **Log / Status** panel. Failed PRs are logged and skipped without stopping the process.
+2. Click **Process & Generate Excel** (the button enables automatically once CR Name, PR Links, and Local Repository Path are all set — in any order).
+3. Watch the progress in the **Log / Status** panel — the status bar shows live progress like `Processing 3/10 - PR 202183...`. Failed PRs are logged and skipped without stopping the process.
+4. Use the **Clear Log** button (top-right of the Log panel) to empty the log before a new run.
 
 ### Step 8 — Excel output
 
@@ -136,7 +137,7 @@ Rows are **sorted ascending** (oldest merge on top). Copy the **Cherry-Pick Comm
 | `git error: bad object {hash}` | The commit is not in the local clone yet. Run `git fetch --all` in the local repository, then process again. |
 | `git log returned no output` | `LocalRepoPath` is wrong, or the commit is not in the local clone. Run `git fetch --all` in the local repo. |
 | `git error: not a git repository` | Set `LocalRepoPath` to the correct repo clone path via **Browse...**. |
-| The Proses button stays disabled | Check the status bar — it names the missing input (PR URL, Local Repository Path, or CR Name). |
+| The Process button stays disabled | Check the status bar — it names the missing input (PR URL, Local Repository Path, or CR Name). |
 | Excel file not generated | All PRs failed to process — check the error messages in the Log panel. |
 | Application closes immediately | The main window was closed. Run `dotnet run` again. |
 
