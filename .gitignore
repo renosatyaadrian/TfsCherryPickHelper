@@ -1,5 +1,8 @@
 /bin
 /obj
 .vs/
+.github/
 *.user
-appsettings.json
+*.xlsx
+/output/
+*.json

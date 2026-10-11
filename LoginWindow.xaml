@@ -1,0 +1,35 @@
+<Window x:Class="TfsCherryPickHelper.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TFS Login"
+        Width="380"
+        Height="240"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="110" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Text="Enter your TFS credentials (saved to local configuration)"
+                   TextWrapping="Wrap" Margin="0,0,0,12" />
+
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Username:" VerticalAlignment="Center" Margin="0,0,8,8" />
+        <TextBox Grid.Row="1" Grid.Column="1" x:Name="UsernameBox" Height="26" Margin="0,0,0,8" />
+
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Password / PAT:" VerticalAlignment="Center" Margin="0,0,8,8" />
+        <PasswordBox Grid.Row="2" Grid.Column="1" x:Name="PasswordBox" Height="26" Margin="0,0,0,8" />
+
+        <Button Grid.Row="5" Grid.ColumnSpan="2" x:Name="SaveButton" Content="Save &amp; Continue"
+                Height="30" Width="140" HorizontalAlignment="Right" Click="SaveButton_Click" />
+    </Grid>
+</Window>
