@@ -255,7 +255,7 @@
                 <!-- PR Links -->
                 <StackPanel Grid.Row="1" Margin="0,0,0,10">
                     <TextBlock Style="{StaticResource RequiredLabel}">
-                        <Run Text="PR Links / IDs (one per line)" />
+                        <Run Text="PR Links (one per line)" />
                         <Run Text="*" Foreground="#DC2626" FontWeight="Bold" />
                     </TextBlock>
                     <TextBox x:Name="PrLinksBox" Height="130" AcceptsReturn="True" TextWrapping="NoWrap"

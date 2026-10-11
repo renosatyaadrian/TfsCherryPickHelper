@@ -28,7 +28,7 @@ public partial class MainWindow : Window
             : _settings.OutputDir;
 
         Log("Getting started:");
-        Log("  1. Paste PR URLs into 'PR Links / IDs' (Base URL & repo are detected automatically).");
+        Log("  1. Paste PR URLs into 'PR Links' (Base URL & repo are detected automatically).");
         Log("  2. Click 'Browse...' and select your local clone of the repository.");
         Log("  3. Click 'Login...' if not logged in, then 'Test Connection'.");
         Log("  4. Enter a CR Name and click 'Process & Generate Excel'.");
@@ -108,7 +108,7 @@ public partial class MainWindow : Window
             .Any(l => UrlParser.ExtractPrId(l) != string.Empty);
 
         if (!hasPr)
-            return "Add at least one valid PR link or ID.";
+            return "Add at least one valid PR link.";
 
         return null;
     }
