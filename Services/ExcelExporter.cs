@@ -52,7 +52,7 @@ public static class ExcelExporter
             }
             sheet.Cell(row, 2).Value = item.CommitHash;
             sheet.Cell(row, 3).Value = item.MergeDate;
-            sheet.Cell(row, 3).Style.DateFormat.Format = "dd/MM/yyyy HH:mm:ss";
+            sheet.Cell(row, 3).Style.DateFormat.Format = "yyyy-mm-dd hh:mm:ss";
             sheet.Cell(row, 4).Value = item.Message;
             sheet.Cell(row, 5).Value = item.CherryPickCommand;
         }

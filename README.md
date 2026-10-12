@@ -92,7 +92,7 @@ Contents of the `CherryPickList` sheet:
 
 | PR ID | Commit Hash | Merge Date | Message | Cherry-Pick Command |
 |---|---|---|---|---|
-| 202182 | a1b2c3... | 10/10/2026 09:15:00 | Merge PR 202182... | `git cherry-pick a1b2c3... -m 1` |
+| 202182 | a1b2c3... | 2026-10-10 09:15:00 | Merge PR 202182... | `git cherry-pick a1b2c3... -m 1` |
 
 Rows are **sorted ascending** (oldest merge on top). Copy the **Cherry-Pick Command** column into a terminal in the target repository to run the cherry-picks in order.
 
