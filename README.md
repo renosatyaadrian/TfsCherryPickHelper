@@ -51,12 +51,12 @@ The main window opens directly with a **Getting started** guide in the Log panel
 
 ### Step 3 — Paste PR URLs
 
-In **PR Links**, paste one link or ID per line, for example:
+In **PR Links**, paste one link PR per line, for example:
 
 ```
 https://tfs.astra.co.id/ProjectName/_git/Project.Backend/pullrequest/202182
-202183
-202184
+https://tfs.astra.co.id/ProjectName/_git/Project.Backend/pullrequest/202183
+https://tfs.astra.co.id/ProjectName/_git/Project.Backend/pullrequest/202184
 ```
 
 The **TFS Connection** field fills in automatically from the first full URL (Base URL + repo name). Plain PR IDs are also accepted as long as at least one full URL is present.
